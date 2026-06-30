@@ -1,1068 +1,627 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>J CASSOL SEMENTES - Gestão de Tarefas</title>
-  <style>
-    :root {
-      --bg-main: #f4f7f0;
-      --bg-card: #ffffff;
-      --bg-header: #1a472a;
-      --bg-header-light: #2d6a4f;
-      --text-main: #1f2937;
-      --text-muted: #6b7280;
-      --text-light: #f9fafb;
-      --border: #d1d5db;
-      --accent: #65a30d;
-      --accent-hover: #4d7c0f;
-      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
-      --radius: 12px;
-      --radius-sm: 8px;
-      --priority-baixa: #22c55e;
-      --priority-media: #3b82f6;
-      --priority-alta: #f97316;
-      --priority-urgente: #ef4444;
-      --column-todo: #fef3c7;
-      --column-doing: #dbeafe;
-      --column-done: #dcfce7;
-      --danger: #dc2626;
-      --danger-hover: #b91c1c;
-    }
-
-    * { box-sizing: border-box; }
-
-    html, body {
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background: var(--bg-main);
-      color: var(--text-main);
-      height: 100%;
-      overflow: hidden;
-    }
-
-    .app { display: flex; flex-direction: column; height: 100vh; }
-
-    header {
-      background: linear-gradient(135deg, var(--bg-header) 0%, var(--bg-header-light) 100%);
-      color: var(--text-light);
-      padding: 14px 20px;
-      box-shadow: var(--shadow-lg);
-      z-index: 50;
-      flex-shrink: 0;
-    }
-
-    .header-content {
-      max-width: 1600px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .brand-icon {
-      width: 42px;
-      height: 42px;
-      background: rgba(255,255,255,0.15);
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      font-size: 22px;
-    }
-
-    .brand-text h1 {
-      margin: 0;
-      font-size: 1.25rem;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-    }
-
-    .brand-text span {
-      font-size: 0.75rem;
-      opacity: 0.85;
-      font-weight: 500;
-    }
-
-    .stats {
-      display: flex;
-      gap: 10px;
-      font-size: 0.85rem;
-    }
-
-    .stat-badge {
-      background: rgba(255,255,255,0.15);
-      padding: 6px 12px;
-      border-radius: 999px;
-      font-weight: 600;
-    }
-
-    .controls {
-      background: var(--bg-card);
-      border-bottom: 1px solid var(--border);
-      padding: 14px 20px;
-      flex-shrink: 0;
-    }
-
-    .controls-inner {
-      max-width: 1600px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      flex-wrap: wrap;
-    }
-
-    .filter-group {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .filter-label {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      font-weight: 600;
-    }
-
-    select, input[type="date"], input[type="text"], textarea {
-      padding: 8px 12px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      font-size: 0.9rem;
-      background: #fff;
-      color: var(--text-main);
-      min-height: 38px;
-    }
-
-    select:focus, input:focus, textarea:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(101, 163, 13, 0.2);
-    }
-
-    .btn {
-      border: none;
-      border-radius: var(--radius-sm);
-      padding: 10px 16px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      transition: transform 0.1s ease, background 0.2s ease, box-shadow 0.2s ease;
-      user-select: none;
-    }
-
-    .btn:active { transform: translateY(1px); }
-
-    .btn-primary {
-      background: var(--accent);
-      color: #fff;
-      box-shadow: 0 2px 0 #3f6212;
-    }
-
-    .btn-primary:hover { background: var(--accent-hover); }
-
-    .btn-secondary {
-      background: #e5e7eb;
-      color: var(--text-main);
-    }
-
-    .btn-secondary:hover { background: #d1d5db; }
-
-    .btn-danger {
-      background: var(--danger);
-      color: #fff;
-    }
-
-    .btn-danger:hover { background: var(--danger-hover); }
-
-    .btn-ghost {
-      background: transparent;
-      color: var(--text-main);
-      border: 1px solid var(--border);
-    }
-
-    .main-board {
-      flex: 1;
-      overflow-x: auto;
-      overflow-y: hidden;
-      padding: 20px;
-    }
-
-    .board {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(300px, 1fr));
-      gap: 20px;
-      max-width: 1600px;
-      margin: 0 auto;
-      height: 100%;
-      min-width: 940px;
-    }
-
-    .column {
-      background: rgba(255,255,255,0.65);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      overflow: hidden;
-      box-shadow: var(--shadow);
-    }
-
-    .column-header {
-      padding: 14px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid var(--border);
-      flex-shrink: 0;
-    }
-
-    .column-title {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: 700;
-      font-size: 0.95rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .column-title .dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-    }
-
-    .column-count {
-      background: rgba(0,0,0,0.08);
-      color: var(--text-main);
-      padding: 3px 10px;
-      border-radius: 999px;
-      font-size: 0.8rem;
-      font-weight: 700;
-    }
-
-    .column[data-status="todo"] .column-header { background: var(--column-todo); }
-    .column[data-status="doing"] .column-header { background: var(--column-doing); }
-    .column[data-status="done"] .column-header { background: var(--column-done); }
-
-    .column-body {
-      flex: 1;
-      overflow-y: auto;
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .column-body.drag-over {
-      background: rgba(101, 163, 13, 0.08);
-      box-shadow: inset 0 0 0 2px var(--accent);
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 30px 16px;
-      color: var(--text-muted);
-      font-size: 0.85rem;
-      border: 2px dashed var(--border);
-      border-radius: var(--radius-sm);
-      margin: 4px;
-    }
-
-    .task-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 14px;
-      box-shadow: var(--shadow);
-      cursor: grab;
-      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
-      position: relative;
-      touch-action: none;
-    }
-
-    .task-card:hover { box-shadow: var(--shadow-lg); }
-
-    .task-card.dragging {
-      opacity: 0.4;
-      cursor: grabbing;
-    }
-
-    .task-card.completed {
-      border-left: 4px solid var(--priority-baixa);
-    }
-
-    .task-card.completed::after {
-      content: "✓ Concluído";
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      background: var(--priority-baixa);
-      color: #fff;
-      font-size: 0.65rem;
-      font-weight: 700;
-      padding: 3px 8px;
-      border-radius: 999px;
-      text-transform: uppercase;
-    }
-
-    .task-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 8px;
-      margin-bottom: 10px;
-      padding-right: 70px;
-    }
-
-    .task-title {
-      font-weight: 700;
-      font-size: 0.95rem;
-      line-height: 1.3;
-      margin: 0;
-      color: var(--text-main);
-    }
-
-    .task-meta {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      font-size: 0.8rem;
-    }
-
-    .meta-row {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      color: var(--text-muted);
-    }
-
-    .member-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: #f3f4f6;
-      padding: 4px 10px;
-      border-radius: 999px;
-      font-weight: 600;
-      color: var(--text-main);
-      width: fit-content;
-    }
-
-    .member-avatar {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: var(--bg-header-light);
-      color: #fff;
-      display: grid;
-      place-items: center;
-      font-size: 0.65rem;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
-
-    .priority-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      font-weight: 700;
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      width: fit-content;
-    }
-
-    .priority-badge::before {
-      content: "";
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: currentColor;
-    }
-
-    .priority-baixa { background: rgba(34, 197, 94, 0.15); color: #15803d; }
-    .priority-media { background: rgba(59, 130, 246, 0.15); color: #1d4ed8; }
-    .priority-alta { background: rgba(249, 115, 22, 0.15); color: #c2410c; }
-    .priority-urgente { background: rgba(239, 68, 68, 0.15); color: #b91c1c; }
-
-    .date-badge { display: inline-flex; align-items: center; gap: 5px; }
-    .date-overdue { color: var(--danger); font-weight: 700; }
-
-    .fab {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      z-index: 40;
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      font-size: 1.5rem;
-      box-shadow: var(--shadow-lg);
-      padding: 0;
-    }
-
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      backdrop-filter: blur(3px);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 100;
-      padding: 20px;
-    }
-
-    .modal-overlay.active { display: flex; }
-
-    .modal {
-      background: var(--bg-card);
-      border-radius: var(--radius);
-      width: 100%;
-      max-width: 520px;
-      max-height: 90vh;
-      overflow: hidden;
-      box-shadow: var(--shadow-lg);
-      display: flex;
-      flex-direction: column;
-      animation: modalIn 0.2s ease;
-    }
-
-    @keyframes modalIn {
-      from { opacity: 0; transform: translateY(20px) scale(0.98); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    .modal-header {
-      background: var(--bg-header);
-      color: var(--text-light);
-      padding: 16px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .modal-header h2 { margin: 0; font-size: 1.1rem; }
-
-    .modal-close {
-      background: rgba(255,255,255,0.15);
-      border: none;
-      color: #fff;
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      cursor: pointer;
-      font-size: 1.2rem;
-      display: grid;
-      place-items: center;
-    }
-
-    .modal-close:hover { background: rgba(255,255,255,0.25); }
-
-    .modal-body {
-      padding: 20px;
-      overflow-y: auto;
-    }
-
-    .form-group { margin-bottom: 16px; }
-
-    .form-group label {
-      display: block;
-      font-size: 0.85rem;
-      font-weight: 600;
-      margin-bottom: 6px;
-      color: var(--text-main);
-    }
-
-    .form-group label .required { color: var(--danger); }
-
-    .form-control {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      font-size: 0.95rem;
-      background: #fff;
-    }
-
-    .form-control:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(101, 163, 13, 0.2);
-    }
-
-    textarea.form-control { resize: vertical; min-height: 80px; }
-
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-
-    .modal-footer {
-      padding: 14px 20px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .modal-actions { display: flex; gap: 10px; }
-
-    .mobile-only { display: none; }
-
-    @media (max-width: 768px) {
-      .header-content { justify-content: center; text-align: center; }
-      .stats { width: 100%; justify-content: center; }
-      .controls-inner { flex-direction: column; align-items: stretch; }
-      .filter-group { width: 100%; justify-content: space-between; }
-      .filter-group select { flex: 1; }
-      .main-board { padding: 12px; }
-      .board {
-        display: flex;
-        flex-direction: column;
-        min-width: 0;
-        height: auto;
-        overflow-y: auto;
-      }
-      .column { min-height: 200px; }
-      .mobile-only { display: inline; }
-      .desktop-only { display: none; }
-    }
-
-    .touch-ghost {
-      position: fixed;
-      pointer-events: none;
-      z-index: 9999;
-      opacity: 0.9;
-      transform: rotate(3deg);
-      box-shadow: var(--shadow-lg);
-      width: 280px;
-    }
-
-    .sr-only {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      border: 0;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>J Cassol Sementes - Kanban</title>
+    <style>
+        :root {
+            --primary-green: #2E7D32;
+            --primary-orange: #F57C00;
+            --bg-color: #f4f7f4;
+            --card-bg: #ffffff;
+            --text-dark: #333333;
+            --text-gray: #555555;
+            --shadow: 0 2px 8px rgba(0,0,0,0.1);
+            --safe-area-bottom: env(safe-area-inset-bottom);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Header & Logo */
+        header {
+            background: white;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            z-index: 10;
+        }
+
+        .logo-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 120px;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 10px;
+            font-size: 0.8rem;
+            text-align: right;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-value {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: var(--primary-green);
+        }
+
+        /* Filters */
+        .filters {
+            padding: 10px 15px;
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            background: #fff;
+            border-bottom: 1px solid #eee;
+        }
+
+        .filters select {
+            padding: 8px 12px;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+            background: white;
+            font-size: 0.9rem;
+            min-width: 100px;
+            outline: none;
+        }
+
+        /* Kanban Board */
+        .board {
+            display: flex;
+            flex: 1;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            padding: 15px 10px;
+            gap: 15px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .column {
+            flex: 0 0 85vw;
+            scroll-snap-align: center;
+            display: flex;
+            flex-direction: column;
+            background: #ebedeb;
+            border-radius: 12px;
+            max-height: 100%;
+        }
+
+        @media (min-width: 768px) {
+            .column {
+                flex: 1;
+            }
+        }
+
+        .column-header {
+            padding: 15px;
+            font-weight: bold;
+            color: var(--primary-green);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+        }
+
+        .task-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 10px 80px 10px;
+            min-height: 100px;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow);
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.1s;
+            touch-action: pan-y;
+            user-select: none;
+        }
+
+        .card:active {
+            transform: scale(0.98);
+        }
+
+        .card-priority {
+            width: 40px;
+            height: 4px;
+            border-radius: 2px;
+            margin-bottom: 8px;
+        }
+
+        .prio-baixa { background: #4CAF50; }
+        .prio-media { background: #2196F3; }
+        .prio-alta { background: #FF9800; }
+        .prio-urgente { background: #F44336; }
+
+        .card-title {
+            font-weight: bold;
+            font-size: 1rem;
+            margin-bottom: 5px;
+            color: var(--text-dark);
+        }
+
+        .card-desc {
+            font-size: 0.85rem;
+            color: var(--text-gray);
+            margin-bottom: 10px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+        }
+
+        .member-badge {
+            background: #eee;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: bold;
+            color: var(--primary-green);
+        }
+
+        .card-date {
+            color: #888;
+        }
+
+        /* FAB */
+        .fab {
+            position: fixed;
+            bottom: calc(20px + var(--safe-area-bottom));
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 28px;
+            background: var(--primary-green);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            border: none;
+            cursor: pointer;
+            z-index: 100;
+        }
+
+        /* Modal / Bottom Sheet */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 200;
+            align-items: flex-end;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-height: 90vh;
+            border-radius: 20px 20px 0 0;
+            padding: 20px;
+            padding-bottom: calc(20px + var(--safe-area-bottom));
+            transform: translateY(100%);
+            transition: transform 0.3s ease-out;
+            overflow-y: auto;
+        }
+
+        @media (min-width: 768px) {
+            .modal-overlay {
+                align-items: center;
+                justify-content: center;
+            }
+            .modal-content {
+                width: 500px;
+                border-radius: 12px;
+                transform: scale(0.9);
+            }
+            .modal-overlay.active .modal-content {
+                transform: scale(1);
+            }
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+            color: var(--text-gray);
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border-radius: 8px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-primary { background: var(--primary-green); color: white; }
+        .btn-secondary { background: #eee; color: var(--text-dark); }
+        .btn-danger { background: #ffebee; color: #d32f2f; }
+
+        /* Drag & Drop Visuals */
+        .dragging {
+            opacity: 0.5;
+            transform: rotate(2deg);
+        }
+    </style>
 </head>
 <body>
-  <div class="app">
+
     <header>
-      <div class="header-content">
-        <div class="brand">
-          <div class="brand-icon">🌱</div>
-          <div class="brand-text">
-            <h1>J CASSOL SEMENTES</h1>
-            <span>Gestão de Tarefas da Equipe</span>
-          </div>
+        <div class="logo-container">
+            <svg width="100" height="65" viewBox="0 0 120 75">
+                <!-- Sprout Icon -->
+                <g transform="translate(40, 0)">
+                    <path d="M20 25 Q20 5 5 15 Q15 25 20 25" fill="#2E7D32" /> <!-- Left Leaf -->
+                    <path d="M20 25 Q20 5 35 15 Q25 25 20 25" fill="#F57C00" /> <!-- Right Leaf -->
+                    <path d="M20 25 Q20 10 20 5" fill="none" stroke="white" stroke-width="1.5" /> <!-- Divider -->
+                </g>
+                <!-- Text -->
+                <text x="60" y="42" text-anchor="middle" font-weight="bold" fill="#2E7D32" font-size="18">CJC</text>
+                <text x="60" y="58" text-anchor="middle" font-weight="bold" fill="#F57C00" font-size="14">SEMENTES</text>
+                <text x="60" y="70" text-anchor="middle" fill="#555555" font-size="6">A tecnologia que seu solo precisa</text>
+            </svg>
         </div>
-        <div class="stats">
-          <div class="stat-badge">Total: <span id="stat-total">0</span></div>
-          <div class="stat-badge">Concluídas: <span id="stat-done">0</span></div>
+        <div class="stats-bar">
+            <div class="stat-item">
+                <span class="stat-value" id="stat-total">0</span>
+                <span>Total</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="stat-pending">0</span>
+                <span>Pendentes</span>
+            </div>
         </div>
-      </div>
     </header>
 
-    <div class="controls">
-      <div class="controls-inner">
-        <div class="filter-group">
-          <span class="filter-label">Filtrar por:</span>
-          <select id="filter-member" aria-label="Filtrar por responsável">
-            <option value="all">Todos os responsáveis</option>
-            <option value="josimar">JOSIMAR</option>
-            <option value="cidimar">CIDIMAR</option>
-            <option value="marcia">MÁRCIA</option>
-          </select>
-          <select id="filter-priority" aria-label="Filtrar por prioridade">
-            <option value="all">Todas as prioridades</option>
+    <div class="filters">
+        <select id="filter-member" onchange="renderBoard()">
+            <option value="">Todos Membros</option>
+            <option value="JO">JOSIMAR (JO)</option>
+            <option value="CI">CIDIMAR (CI)</option>
+            <option value="MÁ">MÁRCIA (MÁ)</option>
+        </select>
+        <select id="filter-priority" onchange="renderBoard()">
+            <option value="">Todas Prioridades</option>
             <option value="baixa">Baixa</option>
             <option value="media">Média</option>
             <option value="alta">Alta</option>
             <option value="urgente">Urgente</option>
-          </select>
-        </div>
-        <button type="button" class="btn btn-primary" id="btn-open-add" onclick="openAddModal()">
-          <span>➕</span> <span class="desktop-only">Nova Tarefa</span><span class="mobile-only">Nova</span>
-        </button>
-      </div>
+        </select>
     </div>
 
-    <main class="main-board">
-      <div class="board" id="board">
-        <div class="column" data-status="todo">
-          <div class="column-header">
-            <div class="column-title"><span class="dot" style="background:#d97706"></span> A FAZER</div>
-            <div class="column-count" id="count-todo">0</div>
-          </div>
-          <div class="column-body" id="col-todo" data-status="todo"></div>
-        </div>
-        <div class="column" data-status="doing">
-          <div class="column-header">
-            <div class="column-title"><span class="dot" style="background:#2563eb"></span> FAZENDO</div>
-            <div class="column-count" id="count-doing">0</div>
-          </div>
-          <div class="column-body" id="col-doing" data-status="doing"></div>
-        </div>
-        <div class="column" data-status="done">
-          <div class="column-header">
-            <div class="column-title"><span class="dot" style="background:#16a34a"></span> CONCLUÍDO</div>
-            <div class="column-count" id="count-done">0</div>
-          </div>
-          <div class="column-body" id="col-done" data-status="done"></div>
-        </div>
-      </div>
+    <main class="board" id="board">
+        <!-- A FAZER -->
+        <section class="column" data-status="todo">
+            <div class="column-header">
+                <span>A Fazer</span>
+                <span class="count" id="count-todo">0</span>
+            </div>
+            <div class="task-list" id="list-todo" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        </section>
+
+        <!-- FAZENDO -->
+        <section class="column" data-status="doing">
+            <div class="column-header">
+                <span>Fazendo</span>
+                <span class="count" id="count-doing">0</span>
+            </div>
+            <div class="task-list" id="list-doing" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        </section>
+
+        <!-- CONCLUÍDO -->
+        <section class="column" data-status="done">
+            <div class="column-header">
+                <span>Concluído</span>
+                <span class="count" id="count-done">0</span>
+            </div>
+            <div class="task-list" id="list-done" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        </section>
     </main>
 
-    <button type="button" class="btn btn-primary fab" onclick="openAddModal()" aria-label="Nova tarefa">➕</button>
-  </div>
+    <button class="fab" onclick="openModal()">+</button>
 
-  <div class="modal-overlay" id="task-modal" onclick="closeModalOnBackdrop(event)">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" onclick="event.stopPropagation()">
-      <div class="modal-header">
-        <h2 id="modal-title">Nova Tarefa</h2>
-        <button type="button" class="modal-close" onclick="closeModal()" aria-label="Fechar">&times;</button>
-      </div>
-      <form id="task-form" onsubmit="handleFormSubmit(event)">
-        <div class="modal-body">
-          <input type="hidden" id="task-id" />
-          <div class="form-group">
-            <label for="task-title">Título da tarefa <span class="required">*</span></label>
-            <input type="text" id="task-title" class="form-control" placeholder="Ex: Revisar pedido de sementes" required maxlength="120" />
-          </div>
-          <div class="form-group">
-            <label for="task-desc">Descrição</label>
-            <textarea id="task-desc" class="form-control" placeholder="Detalhes adicionais sobre a tarefa..."></textarea>
-          </div>
-          <div class="form-row">
+    <!-- Modal Form -->
+    <div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this) closeModal()">
+        <div class="modal-content">
+            <h2 id="modal-title" style="margin-bottom: 20px; color: var(--primary-green);">Nova Tarefa</h2>
+            <input type="hidden" id="task-id">
+            
             <div class="form-group">
-              <label for="task-member">Responsável</label>
-              <select id="task-member" class="form-control" required>
-                <option value="josimar">JOSIMAR - Gerente Administrativo</option>
-                <option value="cidimar">CIDIMAR - Gerente Comercial</option>
-                <option value="marcia">MÁRCIA - Financeiro e Administrativo</option>
-              </select>
+                <label>Título</label>
+                <input type="text" id="task-name" placeholder="Ex: Analisar solo Gleba A">
             </div>
+
             <div class="form-group">
-              <label for="task-priority">Prioridade</label>
-              <select id="task-priority" class="form-control" required>
-                <option value="baixa">Baixa</option>
-                <option value="media" selected>Média</option>
-                <option value="alta">Alta</option>
-                <option value="urgente">Urgente</option>
-              </select>
+                <label>Descrição</label>
+                <textarea id="task-desc" rows="3" placeholder="Detalhes da tarefa..."></textarea>
             </div>
-          </div>
-          <div class="form-group">
-            <label for="task-deadline">Prazo</label>
-            <input type="date" id="task-deadline" class="form-control" />
-          </div>
+
+            <div style="display: flex; gap: 10px;">
+                <div class="form-group" style="flex: 1;">
+                    <label>Membro</label>
+                    <select id="task-member">
+                        <option value="JO">JOSIMAR (JO)</option>
+                        <option value="CI">CIDIMAR (CI)</option>
+                        <option value="MÁ">MÁRCIA (MÁ)</option>
+                    </select>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label>Prioridade</label>
+                    <select id="task-priority">
+                        <option value="baixa">Baixa</option>
+                        <option value="media">Média</option>
+                        <option value="alta">Alta</option>
+                        <option value="urgente">Urgente</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Prazo</label>
+                <input type="date" id="task-deadline">
+            </div>
+
+            <div class="btn-row">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+                <button class="btn btn-danger" id="btn-delete" style="display:none" onclick="deleteTask()">Excluir</button>
+                <button class="btn btn-primary" onclick="saveTask()">Salvar</button>
+            </div>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-danger" id="btn-delete" onclick="confirmDelete()" style="display:none">🗑 Excluir</button>
-          <div class="modal-actions">
-            <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
-            <button type="submit" class="btn btn-primary">💾 Salvar</button>
-          </div>
-        </div>
-      </form>
     </div>
-  </div>
 
-  <script>
-    (function () {
-      const STORAGE_KEY = 'jcassol_tasks_v1';
+    <script>
+        let tasks = JSON.parse(localStorage.getItem('jcassol_tasks')) || [];
+        let touchStartX = 0;
+        let currentSwipedCardId = null;
 
-      const columns = {
-        todo: 'A FAZER',
-        doing: 'FAZENDO',
-        done: 'CONCLUÍDO'
-      };
+        const statuses = ['todo', 'doing', 'done'];
 
-      const teamMembers = {
-        josimar: { name: 'JOSIMAR', role: 'GERENTE ADMINISTRATIVO', initials: 'JO' },
-        cidimar: { name: 'CIDIMAR', role: 'GERENTE COMERCIAL', initials: 'CI' },
-        marcia: { name: 'MÁRCIA', role: 'SETOR FINANCEIRO E ADMINISTRATIVO', initials: 'MÁ' }
-      };
-
-      const priorities = {
-        baixa: { label: 'Baixa', cls: 'priority-baixa' },
-        media: { label: 'Média', cls: 'priority-media' },
-        alta: { label: 'Alta', cls: 'priority-alta' },
-        urgente: { label: 'Urgente', cls: 'priority-urgente' }
-      };
-
-      let tasks = [];
-      let draggedTaskId = null;
-      let touchDragGhost = null;
-      let touchDragTaskId = null;
-      let touchStartX = 0;
-      let touchStartY = 0;
-      let touchMoved = false;
-      let currentEditId = null;
-
-      function loadTasks() {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
-          try { tasks = JSON.parse(saved); } catch (e) { tasks = []; }
+        function saveToStorage() {
+            localStorage.setItem('jcassol_tasks', JSON.stringify(tasks));
+            updateStats();
         }
-        if (!Array.isArray(tasks) || tasks.length === 0) {
-          tasks = getSampleTasks();
-          saveTasks();
-        }
-      }
 
-      function saveTasks() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
-      }
-
-      function getSampleTasks() {
-        return [
-          {
-            id: generateId(),
-            title: 'Revisar contratos de fornecedores',
-            description: 'Conferir prazos e valores dos contratos de sementes de milho.',
-            member: 'josimar',
-            priority: 'alta',
-            deadline: formatDateISO(addDays(new Date(), 3)),
-            status: 'todo',
-            createdAt: new Date().toISOString()
-          },
-          {
-            id: generateId(),
-            title: 'Atendimento a clientes do interior',
-            description: 'Retornar contatos pendentes de clientes da região norte.',
-            member: 'cidimar',
-            priority: 'media',
-            deadline: formatDateISO(addDays(new Date(), 2)),
-            status: 'doing',
-            createdAt: new Date().toISOString()
-          },
-          {
-            id: generateId(),
-            title: 'Conciliação bancária mensal',
-            description: 'Finalizar conciliação de contas e preparar relatório.',
-            member: 'marcia',
-            priority: 'urgente',
-            deadline: formatDateISO(addDays(new Date(), -1)),
-            status: 'done',
-            createdAt: new Date().toISOString()
-          }
-        ];
-      }
-
-      function generateId() { return 't_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 9); }
-      function addDays(date, days) { const d = new Date(date); d.setDate(d.getDate() + days); return d; }
-      function formatDateISO(date) { return new Date(date).toISOString().split('T')[0]; }
-      function formatDateBR(dateStr) { if (!dateStr) return '-'; const [y, m, d] = dateStr.split('-'); return `${d}/${m}/${y}`; }
-      function isOverdue(dateStr, status) { if (!dateStr || status === 'done') return false; return new Date(dateStr) < new Date(new Date().toISOString().split('T')[0]); }
-
-      function getFilteredTasks() {
-        const memberFilter = document.getElementById('filter-member').value;
-        const priorityFilter = document.getElementById('filter-priority').value;
-        return tasks.filter(t => {
-          if (memberFilter !== 'all' && t.member !== memberFilter) return false;
-          if (priorityFilter !== 'all' && t.priority !== priorityFilter) return false;
-          return true;
-        });
-      }
-
-      function render() {
-        const filtered = getFilteredTasks();
-        ['todo', 'doing', 'done'].forEach(status => {
-          const col = document.getElementById('col-' + status);
-          col.innerHTML = '';
-          const colTasks = filtered.filter(t => t.status === status);
-          document.getElementById('count-' + status).textContent = colTasks.length;
-          if (colTasks.length === 0) {
-            col.innerHTML = '<div class="empty-state">Nenhuma tarefa nesta coluna</div>';
-          } else {
-            colTasks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).forEach(task => {
-              col.appendChild(createTaskCard(task));
+        function updateStats() {
+            document.getElementById('stat-total').innerText = tasks.length;
+            document.getElementById('stat-pending').innerText = tasks.filter(t => t.status !== 'done').length;
+            
+            statuses.forEach(status => {
+                const count = tasks.filter(t => t.status === status).length;
+                document.getElementById(`count-${status}`).innerText = count;
             });
-          }
-        });
+        }
 
-        const total = tasks.length;
-        const done = tasks.filter(t => t.status === 'done').length;
-        document.getElementById('stat-total').textContent = total;
-        document.getElementById('stat-done').textContent = done;
-      }
+        function renderBoard() {
+            const filterMember = document.getElementById('filter-member').value;
+            const filterPrio = document.getElementById('filter-priority').value;
 
-      function createTaskCard(task) {
-        const card = document.createElement('div');
-        card.className = 'task-card' + (task.status === 'done' ? ' completed' : '');
-        card.draggable = true;
-        card.dataset.id = task.id;
+            statuses.forEach(status => {
+                const list = document.getElementById(`list-${status}`);
+                list.innerHTML = '';
 
-        const member = teamMembers[task.member] || teamMembers.josimar;
-        const priority = priorities[task.priority] || priorities.media;
-        const overdue = isOverdue(task.deadline, task.status);
-        const dateClass = overdue ? 'date-overdue' : '';
-        const dateIcon = overdue ? '⚠️' : '📅';
+                const filtered = tasks.filter(t => {
+                    const matchMember = !filterMember || t.member === filterMember;
+                    const matchPrio = !filterPrio || t.priority === filterPrio;
+                    return t.status === status && matchMember && matchPrio;
+                });
 
-        card.innerHTML = `
-          <div class="task-header">
-            <h3 class="task-title">${escapeHtml(task.title)}</h3>
-          </div>
-          <div class="task-meta">
-            <div class="member-badge">
-              <div class="member-avatar">${member.initials}</div>
-              <span>${member.name}</span>
-            </div>
-            <div class="meta-row">
-              <span class="priority-badge ${priority.cls}">${priority.label}</span>
-            </div>
-            <div class="meta-row date-badge ${dateClass}">
-              <span>${dateIcon}</span>
-              <span>${formatDateBR(task.deadline)}${overdue ? ' (atrasada)' : ''}</span>
-            </div>
-          </div>
-        `;
+                filtered.forEach(task => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.draggable = true;
+                    card.id = `task-${task.id}`;
+                    card.innerHTML = `
+                        <div class="card-priority prio-${task.priority}"></div>
+                        <div class="card-title">${task.title}</div>
+                        <div class="card-desc">${task.description}</div>
+                        <div class="card-footer">
+                            <span class="member-badge">${task.member}</span>
+                            <span class="card-date">${task.deadline ? formatDate(task.deadline) : ''}</span>
+                        </div>
+                    `;
 
-        card.addEventListener('dragstart', handleDragStart);
-        card.addEventListener('dragend', handleDragEnd);
-        card.addEventListener('click', () => openEditModal(task.id));
+                    // Desktop Drag
+                    card.ondragstart = (e) => {
+                        e.dataTransfer.setData('text/plain', task.id);
+                        card.classList.add('dragging');
+                    };
+                    card.ondragend = () => card.classList.remove('dragging');
 
-        card.addEventListener('touchstart', handleTouchStart, { passive: false });
-        card.addEventListener('touchmove', handleTouchMove, { passive: false });
-        card.addEventListener('touchend', handleTouchEnd, { passive: false });
+                    // Mobile Swipe & Tap
+                    card.onclick = () => openModal(task.id);
+                    card.ontouchstart = (e) => touchStartX = e.touches[0].clientX;
+                    card.ontouchend = (e) => handleSwipe(e, task.id);
 
-        return card;
-      }
+                    list.appendChild(card);
+                });
+            });
+            updateStats();
+        }
 
-      function escapeHtml(str) {
-        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-      }
+        function handleSwipe(e, taskId) {
+            const touchEndX = e.changedTouches[0].clientX;
+            const diff = touchEndX - touchStartX;
+            const taskIndex = tasks.findIndex(t => t.id === taskId);
+            if (taskIndex === -1) return;
 
-      function handleDragStart(e) {
-        draggedTaskId = this.dataset.id;
-        this.classList.add('dragging');
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/plain', draggedTaskId);
-      }
+            const currentStatus = tasks[taskIndex].status;
+            const statusIdx = statuses.indexOf(currentStatus);
 
-      function handleDragEnd(e) {
-        this.classList.remove('dragging');
-        draggedTaskId = null;
-        document.querySelectorAll('.column-body').forEach(c => c.classList.remove('drag-over'));
-      }
+            if (diff < -70 && statusIdx < 2) { // Swipe Left -> Next
+                tasks[taskIndex].status = statuses[statusIdx + 1];
+                saveToStorage();
+                renderBoard();
+            } else if (diff > 70 && statusIdx > 0) { // Swipe Right -> Prev
+                tasks[taskIndex].status = statuses[statusIdx - 1];
+                saveToStorage();
+                renderBoard();
+            }
+        }
 
-      function setupColumnDrop() {
-        document.querySelectorAll('.column-body').forEach(col => {
-          col.addEventListener('dragover', e => {
+        function allowDrop(e) { e.preventDefault(); }
+
+        function drop(e) {
             e.preventDefault();
-            col.classList.add('drag-over');
-          });
-          col.addEventListener('dragleave', e => {
-            col.classList.remove('drag-over');
-          });
-          col.addEventListener('drop', e => {
-            e.preventDefault();
-            col.classList.remove('drag-over');
-            const id = e.dataTransfer.getData('text/plain') || draggedTaskId;
-            if (id) moveTask(id, col.dataset.status);
-          });
-        });
-      }
-
-      function moveTask(id, newStatus) {
-        const task = tasks.find(t => t.id === id);
-        if (!task || task.status === newStatus) return;
-        task.status = newStatus;
-        if (newStatus === 'done') task.completedAt = new Date().toISOString();
-        else delete task.completedAt;
-        saveTasks();
-        render();
-      }
-
-      function handleTouchStart(e) {
-        if (e.target.closest('button')) return;
-        const touch = e.touches[0];
-        touchStartX = touch.clientX;
-        touchStartY = touch.clientY;
-        touchMoved = false;
-        touchDragTaskId = this.dataset.id;
-      }
-
-      function handleTouchMove(e) {
-        const touch = e.touches[0];
-        if (!touchDragTaskId) return;
-        const dx = Math.abs(touch.clientX - touchStartX);
-        const dy = Math.abs(touch.clientY - touchStartY);
-        if (dx > 8 || dy > 8) {
-          touchMoved = true;
-          e.preventDefault();
-          if (!touchDragGhost) createTouchGhost(touchDragTaskId);
-          updateTouchGhost(touch.clientX, touch.clientY);
-          highlightDropColumn(touch.clientX, touch.clientY);
+            const taskId = parseInt(e.dataTransfer.getData('text/plain'));
+            const newStatus = e.currentTarget.closest('.column').dataset.status;
+            
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                task.status = newStatus;
+                saveToStorage();
+                renderBoard();
+            }
         }
-      }
 
-      function handleTouchEnd(e) {
-        if (!touchDragTaskId) return;
-        if (!touchMoved) {
-          openEditModal(touchDragTaskId);
-          resetTouchDrag();
-          return;
+        function openModal(taskId = null) {
+            const modal = document.getElementById('modal-overlay');
+            const title = document.getElementById('modal-title');
+            const btnDel = document.getElementById('btn-delete');
+            
+            if (taskId) {
+                const task = tasks.find(t => t.id === taskId);
+                document.getElementById('task-id').value = task.id;
+                document.getElementById('task-name').value = task.title;
+                document.getElementById('task-desc').value = task.description;
+                document.getElementById('task-member').value = task.member;
+                document.getElementById('task-priority').value = task.priority;
+                document.getElementById('task-deadline').value = task.deadline;
+                title.innerText = 'Editar Tarefa';
+                btnDel.style.display = 'block';
+            } else {
+                document.getElementById('task-id').value = '';
+                document.getElementById('task-name').value = '';
+                document.getElementById('task-desc').value = '';
+                document.getElementById('task-member').value = 'JO';
+                document.getElementById('task-priority').value = 'baixa';
+                document.getElementById('task-deadline').value = '';
+                title.innerText = 'Nova Tarefa';
+                btnDel.style.display = 'none';
+            }
+            
+            modal.classList.add('active');
         }
-        const touch = e.changedTouches[0];
-        const col = getColumnAt(touch.clientX, touch.clientY);
-        if (col) moveTask(touchDragTaskId, col.dataset.status);
-        resetTouchDrag();
-      }
 
-      function createTouchGhost(taskId) {
-        const task = tasks.find(t => t.id === taskId);
-        if (!task) return;
-        touchDragGhost = createTaskCard(task).cloneNode(true);
-        touchDragGhost.classList.add('touch-ghost');
-        touchDragGhost.style.width = document.querySelector('.task-card').offsetWidth + 'px';
-        document.body.appendChild(touchDragGhost);
-      }
-
-      function updateTouchGhost(x, y) {
-        if (!touchDragGhost) return;
-        touchDragGhost.style.left = (x - touchDragGhost.offsetWidth / 2) + 'px';
-        touchDragGhost.style.top = (y - touchDragGhost.offsetHeight / 2) + 'px';
-      }
-
-      function highlightDropColumn(x, y) {
-        document.querySelectorAll('.column-body').forEach(c => c.classList.remove('drag-over'));
-        const col = getColumnAt(x, y);
-        if (col) col.classList.add('drag-over');
-      }
-
-      function getColumnAt(x, y) {
-        touchDragGhost && (touchDragGhost.style.display = 'none');
-        let elem = document.elementFromPoint(x, y);
-        touchDragGhost && (touchDragGhost.style.display = 'block');
-        while (elem && !elem.classList.contains('column-body')) {
-          elem = elem.parentElement;
+        function closeModal() {
+            document.getElementById('modal-overlay').classList.remove('active');
         }
-        return elem;
-      }
 
-      function resetTouchDrag() {
-        if (touchDragGhost) { touchDragGhost.remove(); touchDragGhost = null; }
-        touchDragTaskId = null;
-        touchMoved = false;
-        document.querySelectorAll('.column-body').forEach(c => c.classList.remove('drag-over'));
-      }
+        function saveTask() {
+            const id = document.getElementById('task-id').value;
+            const title = document.getElementById('task-name').value;
+            const description = document.getElementById('task-desc').value;
+            const member = document.getElementById('task-member').value;
+            const priority = document.getElementById('task-priority').value;
+            const deadline = document.getElementById('task-deadline').value;
 
-      window.openAddModal = function () {
-        currentEditId = null;
-        document.getElementById('modal-title').textContent = 'Nova Tarefa';
-        document.getElementById('task-form').reset();
-        document.getElementById('task-id').value = '';
-        document.getElementById('btn-delete').style.display = 'none';
-        document.getElementById('task-deadline').value = formatDateISO(new Date());
-        document.getElementById('task-modal').classList.add('active');
-        document.getElementById('task-title').focus();
-      };
+            if (!title) return alert('Título é obrigatório');
 
-      window.openEditModal = function (id) {
-        const task = tasks.find(t => t.id === id);
-        if (!task) return;
-        currentEditId = id;
-        document.getElementById('modal-title').textContent = 'Editar Tarefa';
-        document.getElementById('task-id').value = task.id;
-        document.getElementById('task-title').value = task.title;
-        document.getElementById('task-desc').value = task.description || '';
-        document.getElementById('task-member').value = task.member;
-        document.getElementById('task-priority').value = task.priority;
-        document.getElementById('task-deadline').value = task.deadline || '';
-        document.getElementById('btn-delete').style.display = 'inline-flex';
-        document.getElementById('task-modal').classList.add('active');
-      };
+            if (id) {
+                const idx = tasks.findIndex(t => t.id == id);
+                tasks[idx] = { ...tasks[idx], title, description, member, priority, deadline };
+            } else {
+                tasks.push({
+                    id: Date.now(),
+                    title,
+                    description,
+                    member,
+                    priority,
+                    deadline,
+                    status: 'todo'
+                });
+            }
 
-      window.closeModal = function () {
-        document.getElementById('task-modal').classList.remove('active');
-        currentEditId = null;
-      };
-
-      window.closeModalOnBackdrop = function (e) {
-        if (e.target === document.getElementById('task-modal')) closeModal();
-      };
-
-      window.handleFormSubmit = function (e) {
-        e.preventDefault();
-        const title = document.getElementById('task-title').value.trim();
-        const description = document.getElementById('task-desc').value.trim();
-        const member = document.getElementById('task-member').value;
-        const priority = document.getElementById('task-priority').value;
-        const deadline = document.getElementById('task-deadline').value;
-
-        if (!title) return;
-
-        if (currentEditId) {
-          const task = tasks.find(t => t.id === currentEditId);
-          if (task) {
-            task.title = title;
-            task.description = description;
-            task.member = member;
-            task.priority = priority;
-            task.deadline = deadline;
-          }
-        } else {
-          tasks.push({
-            id: generateId(),
-            title,
-            description,
-            member,
-            priority,
-            deadline,
-            status: 'todo',
-            createdAt: new Date().toISOString()
-          });
+            saveToStorage();
+            renderBoard();
+            closeModal();
         }
-        saveTasks();
-        render();
-        closeModal();
-      };
 
-      window.confirmDelete = function () {
-        if (!currentEditId) return;
-        if (confirm('Tem certeza que deseja excluir esta tarefa?')) {
-          tasks = tasks.filter(t => t.id !== currentEditId);
-          saveTasks();
-          render();
-          closeModal();
+        function deleteTask() {
+            const id = document.getElementById('task-id').value;
+            if (confirm('Deseja excluir esta tarefa?')) {
+                tasks = tasks.filter(t => t.id != id);
+                saveToStorage();
+                renderBoard();
+                closeModal();
+            }
         }
-      };
 
-      document.getElementById('filter-member').addEventListener('change', render);
-      document.getElementById('filter-priority').addEventListener('change', render);
-      document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+        function formatDate(dateStr) {
+            const [y, m, d] = dateStr.split('-');
+            return `${d}/${m}`;
+        }
 
-      loadTasks();
-      setupColumnDrop();
-      render();
-    })();
-  </script>
+        // Initial Render
+        renderBoard();
+    </script>
 </body>
 </html>
