@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>J CASSOL SEMENTES - Gestão de Tarefas</title>
+  <style>
+    :root {
+      --bg-main: #f4f7f0;
+      --bg-card: #ffffff;
+      --bg-header: #1a472a;
+      --bg-header-light: #2d6a4f;
+      --text-main: #1f2937;
+      --text-muted: #6b7280;
+      --text-light: #f9fafb;
+      --border: #d1d5db;
+      --accent: #65a30d;
+      --accent-hover: #4d7c0f;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+      --radius: 12px;
+      --radius-sm: 8px;
+      --priority-baixa: #22c55e;
+      --priority-media: #3b82f6;
+      --priority-alta: #f97316;
+      --priority-urgente: #ef4444;
+      --column-todo: #fef3c7;
+      --column-doing: #dbeafe;
+      --column-done: #dcfce7;
+      --danger: #dc2626;
+      --danger-hover: #b91c1c;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg-main);
+      color: var(--text-main);
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .app { display: flex; flex-direction: column; height: 100vh; }
+
+    header {
+      background: linear-gradient(135deg, var(--bg-header) 0%, var(--bg-header-light) 100%);
+      color: var(--text-light);
+      padding: 14px 20px;
+      box-shadow: var(--shadow-lg);
+      z-index: 50;
+      flex-shrink: 0;
+    }
+
+    .header-content {
+      max-width: 1600px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 42px;
+      height: 42px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+    }
+
+    .brand-text h1 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-text span {
+      font-size: 0.75rem;
+      opacity: 0.85;
+      font-weight: 500;
+    }
+
+    .stats {
+      display: flex;
+      gap: 10px;
+      font-size: 0.85rem;
+    }
+
+    .stat-badge {
+      background: rgba(255,255,255,0.15);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+
+    .controls {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 20px;
+      flex-shrink: 0;
+    }
+
+    .controls-inner {
+      max-width: 1600px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .filter-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    select, input[type="date"], input[type="text"], textarea {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      background: #fff;
+      color: var(--text-main);
+      min-height: 38px;
+    }
+
+    select:focus, input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(101, 163, 13, 0.2);
+    }
+
+    .btn {
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 10px 16px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: transform 0.1s ease, background 0.2s ease, box-shadow 0.2s ease;
+      user-select: none;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 2px 0 #3f6212;
+    }
+
+    .btn-primary:hover { background: var(--accent-hover); }
+
+    .btn-secondary {
+      background: #e5e7eb;
+      color: var(--text-main);
+    }
+
+    .btn-secondary:hover { background: #d1d5db; }
+
+    .btn-danger {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .btn-danger:hover { background: var(--danger-hover); }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-main);
+      border: 1px solid var(--border);
+    }
+
+    .main-board {
+      flex: 1;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 20px;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(300px, 1fr));
+      gap: 20px;
+      max-width: 1600px;
+      margin: 0 auto;
+      height: 100%;
+      min-width: 940px;
+    }
+
+    .column {
+      background: rgba(255,255,255,0.65);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .column-header {
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .column-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .column-title .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .column-count {
+      background: rgba(0,0,0,0.08);
+      color: var(--text-main);
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .column[data-status="todo"] .column-header { background: var(--column-todo); }
+    .column[data-status="doing"] .column-header { background: var(--column-doing); }
+    .column[data-status="done"] .column-header { background: var(--column-done); }
+
+    .column-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .column-body.drag-over {
+      background: rgba(101, 163, 13, 0.08);
+      box-shadow: inset 0 0 0 2px var(--accent);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 30px 16px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-sm);
+      margin: 4px;
+    }
+
+    .task-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      box-shadow: var(--shadow);
+      cursor: grab;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+      position: relative;
+      touch-action: none;
+    }
+
+    .task-card:hover { box-shadow: var(--shadow-lg); }
+
+    .task-card.dragging {
+      opacity: 0.4;
+      cursor: grabbing;
+    }
+
+    .task-card.completed {
+      border-left: 4px solid var(--priority-baixa);
+    }
+
+    .task-card.completed::after {
+      content: "✓ Concluído";
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: var(--priority-baixa);
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 999px;
+      text-transform: uppercase;
+    }
+
+    .task-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 10px;
+      padding-right: 70px;
+    }
+
+    .task-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      line-height: 1.3;
+      margin: 0;
+      color: var(--text-main);
+    }
+
+    .task-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 0.8rem;
+    }
+
+    .meta-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-muted);
+    }
+
+    .member-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #f3f4f6;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-weight: 600;
+      color: var(--text-main);
+      width: fit-content;
+    }
+
+    .member-avatar {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--bg-header-light);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 0.65rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .priority-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      width: fit-content;
+    }
+
+    .priority-badge::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .priority-baixa { background: rgba(34, 197, 94, 0.15); color: #15803d; }
+    .priority-media { background: rgba(59, 130, 246, 0.15); color: #1d4ed8; }
+    .priority-alta { background: rgba(249, 115, 22, 0.15); color: #c2410c; }
+    .priority-urgente { background: rgba(239, 68, 68, 0.15); color: #b91c1c; }
+
+    .date-badge { display: inline-flex; align-items: center; gap: 5px; }
+    .date-overdue { color: var(--danger); font-weight: 700; }
+
+    .fab {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 40;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 1.5rem;
+      box-shadow: var(--shadow-lg);
+      padding: 0;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(3px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+    }
+
+    .modal-overlay.active { display: flex; }
+
+    .modal {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      width: 100%;
+      max-width: 520px;
+      max-height: 90vh;
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      flex-direction: column;
+      animation: modalIn 0.2s ease;
+    }
+
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(20px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .modal-header {
+      background: var(--bg-header);
+      color: var(--text-light);
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h2 { margin: 0; font-size: 1.1rem; }
+
+    .modal-close {
+      background: rgba(255,255,255,0.15);
+      border: none;
+      color: #fff;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.2rem;
+      display: grid;
+      place-items: center;
+    }
+
+    .modal-close:hover { background: rgba(255,255,255,0.25); }
+
+    .modal-body {
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .form-group { margin-bottom: 16px; }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text-main);
+    }
+
+    .form-group label .required { color: var(--danger); }
+
+    .form-control {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 0.95rem;
+      background: #fff;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(101, 163, 13, 0.2);
+    }
+
+    textarea.form-control { resize: vertical; min-height: 80px; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    .modal-footer {
+      padding: 14px 20px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .modal-actions { display: flex; gap: 10px; }
+
+    .mobile-only { display: none; }
+
+    @media (max-width: 768px) {
+      .header-content { justify-content: center; text-align: center; }
+      .stats { width: 100%; justify-content: center; }
+      .controls-inner { flex-direction: column; align-items: stretch; }
+      .filter-group { width: 100%; justify-content: space-between; }
+      .filter-group select { flex: 1; }
+      .main-board { padding: 12px; }
+      .board {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        height: auto;
+        overflow-y: auto;
+      }
+      .column { min-height: 200px; }
+      .mobile-only { display: inline; }
+      .desktop-only { display: none; }
+    }
+
+    .touch-ghost {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.9;
+      transform: rotate(3deg);
+      box-shadow: var(--shadow-lg);
+      width: 280px;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="header-content">
+        <div class="brand">
+          <div class="brand-icon">🌱</div>
+          <div class="brand-text">
+            <h1>J CASSOL SEMENTES</h1>
+            <span>Gestão de Tarefas da Equipe</span>
+          </div>
+        </div>
+        <div class="stats">
+          <div class="stat-badge">Total: <span id="stat-total">0</span></div>
+          <div class="stat-badge">Concluídas: <span id="stat-done">0</span></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="controls">
+      <div class="controls-inner">
+        <div class="filter-group">
+          <span class="filter-label">Filtrar por:</span>
+          <select id="filter-member" aria-label="Filtrar por responsável">
+            <option value="all">Todos os responsáveis</option>
+            <option value="josimar">JOSIMAR</option>
+            <option value="cidimar">CIDIMAR</option>
+            <option value="marcia">MÁRCIA</option>
+          </select>
+          <select id="filter-priority" aria-label="Filtrar por prioridade">
+            <option value="all">Todas as prioridades</option>
+            <option value="baixa">Baixa</option>
+            <option value="media">Média</option>
+            <option value="alta">Alta</option>
+            <option value="urgente">Urgente</option>
+          </select>
+        </div>
+        <button type="button" class="btn btn-primary" id="btn-open-add" onclick="openAddModal()">
+          <span>➕</span> <span class="desktop-only">Nova Tarefa</span><span class="mobile-only">Nova</span>
+        </button>
+      </div>
+    </div>
+
+    <main class="main-board">
+      <div class="board" id="board">
+        <div class="column" data-status="todo">
+          <div class="column-header">
+            <div class="column-title"><span class="dot" style="background:#d97706"></span> A FAZER</div>
+            <div class="column-count" id="count-todo">0</div>
+          </div>
+          <div class="column-body" id="col-todo" data-status="todo"></div>
+        </div>
+        <div class="column" data-status="doing">
+          <div class="column-header">
+            <div class="column-title"><span class="dot" style="background:#2563eb"></span> FAZENDO</div>
+            <div class="column-count" id="count-doing">0</div>
+          </div>
+          <div class="column-body" id="col-doing" data-status="doing"></div>
+        </div>
+        <div class="column" data-status="done">
+          <div class="column-header">
+            <div class="column-title"><span class="dot" style="background:#16a34a"></span> CONCLUÍDO</div>
+            <div class="column-count" id="count-done">0</div>
+          </div>
+          <div class="column-body" id="col-done" data-status="done"></div>
+        </div>
+      </div>
+    </main>
+
+    <button type="button" class="btn btn-primary fab" onclick="openAddModal()" aria-label="Nova tarefa">➕</button>
+  </div>
+
+  <div class="modal-overlay" id="task-modal" onclick="closeModalOnBackdrop(event)">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h2 id="modal-title">Nova Tarefa</h2>
+        <button type="button" class="modal-close" onclick="closeModal()" aria-label="Fechar">&times;</button>
+      </div>
+      <form id="task-form" onsubmit="handleFormSubmit(event)">
+        <div class="modal-body">
+          <input type="hidden" id="task-id" />
+          <div class="form-group">
+            <label for="task-title">Título da tarefa <span class="required">*</span></label>
+            <input type="text" id="task-title" class="form-control" placeholder="Ex: Revisar pedido de sementes" required maxlength="120" />
+          </div>
+          <div class="form-group">
+            <label for="task-desc">Descrição</label>
+            <textarea id="task-desc" class="form-control" placeholder="Detalhes adicionais sobre a tarefa..."></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="task-member">Responsável</label>
+              <select id="task-member" class="form-control" required>
+                <option value="josimar">JOSIMAR - Gerente Administrativo</option>
+                <option value="cidimar">CIDIMAR - Gerente Comercial</option>
+                <option value="marcia">MÁRCIA - Financeiro e Administrativo</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="task-priority">Prioridade</label>
+              <select id="task-priority" class="form-control" required>
+                <option value="baixa">Baixa</option>
+                <option value="media" selected>Média</option>
+                <option value="alta">Alta</option>
+                <option value="urgente">Urgente</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="task-deadline">Prazo</label>
+            <input type="date" id="task-deadline" class="form-control" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" id="btn-delete" onclick="confirmDelete()" style="display:none">🗑 Excluir</button>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+            <button type="submit" class="btn btn-primary">💾 Salvar</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const STORAGE_KEY = 'jcassol_tasks_v1';
+
+      const columns = {
+        todo: 'A FAZER',
+        doing: 'FAZENDO',
+        done: 'CONCLUÍDO'
+      };
+
+      const teamMembers = {
+        josimar: { name: 'JOSIMAR', role: 'GERENTE ADMINISTRATIVO', initials: 'JO' },
+        cidimar: { name: 'CIDIMAR', role: 'GERENTE COMERCIAL', initials: 'CI' },
+        marcia: { name: 'MÁRCIA', role: 'SETOR FINANCEIRO E ADMINISTRATIVO', initials: 'MÁ' }
+      };
+
+      const priorities = {
+        baixa: { label: 'Baixa', cls: 'priority-baixa' },
+        media: { label: 'Média', cls: 'priority-media' },
+        alta: { label: 'Alta', cls: 'priority-alta' },
+        urgente: { label: 'Urgente', cls: 'priority-urgente' }
+      };
+
+      let tasks = [];
+      let draggedTaskId = null;
+      let touchDragGhost = null;
+      let touchDragTaskId = null;
+      let touchStartX = 0;
+      let touchStartY = 0;
+      let touchMoved = false;
+      let currentEditId = null;
+
+      function loadTasks() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          try { tasks = JSON.parse(saved); } catch (e) { tasks = []; }
+        }
+        if (!Array.isArray(tasks) || tasks.length === 0) {
+          tasks = getSampleTasks();
+          saveTasks();
+        }
+      }
+
+      function saveTasks() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+      }
+
+      function getSampleTasks() {
+        return [
+          {
+            id: generateId(),
+            title: 'Revisar contratos de fornecedores',
+            description: 'Conferir prazos e valores dos contratos de sementes de milho.',
+            member: 'josimar',
+            priority: 'alta',
+            deadline: formatDateISO(addDays(new Date(), 3)),
+            status: 'todo',
+            createdAt: new Date().toISOString()
+          },
+          {
+            id: generateId(),
+            title: 'Atendimento a clientes do interior',
+            description: 'Retornar contatos pendentes de clientes da região norte.',
+            member: 'cidimar',
+            priority: 'media',
+            deadline: formatDateISO(addDays(new Date(), 2)),
+            status: 'doing',
+            createdAt: new Date().toISOString()
+          },
+          {
+            id: generateId(),
+            title: 'Conciliação bancária mensal',
+            description: 'Finalizar conciliação de contas e preparar relatório.',
+            member: 'marcia',
+            priority: 'urgente',
+            deadline: formatDateISO(addDays(new Date(), -1)),
+            status: 'done',
+            createdAt: new Date().toISOString()
+          }
+        ];
+      }
+
+      function generateId() { return 't_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 9); }
+      function addDays(date, days) { const d = new Date(date); d.setDate(d.getDate() + days); return d; }
+      function formatDateISO(date) { return new Date(date).toISOString().split('T')[0]; }
+      function formatDateBR(dateStr) { if (!dateStr) return '-'; const [y, m, d] = dateStr.split('-'); return `${d}/${m}/${y}`; }
+      function isOverdue(dateStr, status) { if (!dateStr || status === 'done') return false; return new Date(dateStr) < new Date(new Date().toISOString().split('T')[0]); }
+
+      function getFilteredTasks() {
+        const memberFilter = document.getElementById('filter-member').value;
+        const priorityFilter = document.getElementById('filter-priority').value;
+        return tasks.filter(t => {
+          if (memberFilter !== 'all' && t.member !== memberFilter) return false;
+          if (priorityFilter !== 'all' && t.priority !== priorityFilter) return false;
+          return true;
+        });
+      }
+
+      function render() {
+        const filtered = getFilteredTasks();
+        ['todo', 'doing', 'done'].forEach(status => {
+          const col = document.getElementById('col-' + status);
+          col.innerHTML = '';
+          const colTasks = filtered.filter(t => t.status === status);
+          document.getElementById('count-' + status).textContent = colTasks.length;
+          if (colTasks.length === 0) {
+            col.innerHTML = '<div class="empty-state">Nenhuma tarefa nesta coluna</div>';
+          } else {
+            colTasks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).forEach(task => {
+              col.appendChild(createTaskCard(task));
+            });
+          }
+        });
+
+        const total = tasks.length;
+        const done = tasks.filter(t => t.status === 'done').length;
+        document.getElementById('stat-total').textContent = total;
+        document.getElementById('stat-done').textContent = done;
+      }
+
+      function createTaskCard(task) {
+        const card = document.createElement('div');
+        card.className = 'task-card' + (task.status === 'done' ? ' completed' : '');
+        card.draggable = true;
+        card.dataset.id = task.id;
+
+        const member = teamMembers[task.member] || teamMembers.josimar;
+        const priority = priorities[task.priority] || priorities.media;
+        const overdue = isOverdue(task.deadline, task.status);
+        const dateClass = overdue ? 'date-overdue' : '';
+        const dateIcon = overdue ? '⚠️' : '📅';
+
+        card.innerHTML = `
+          <div class="task-header">
+            <h3 class="task-title">${escapeHtml(task.title)}</h3>
+          </div>
+          <div class="task-meta">
+            <div class="member-badge">
+              <div class="member-avatar">${member.initials}</div>
+              <span>${member.name}</span>
+            </div>
+            <div class="meta-row">
+              <span class="priority-badge ${priority.cls}">${priority.label}</span>
+            </div>
+            <div class="meta-row date-badge ${dateClass}">
+              <span>${dateIcon}</span>
+              <span>${formatDateBR(task.deadline)}${overdue ? ' (atrasada)' : ''}</span>
+            </div>
+          </div>
+        `;
+
+        card.addEventListener('dragstart', handleDragStart);
+        card.addEventListener('dragend', handleDragEnd);
+        card.addEventListener('click', () => openEditModal(task.id));
+
+        card.addEventListener('touchstart', handleTouchStart, { passive: false });
+        card.addEventListener('touchmove', handleTouchMove, { passive: false });
+        card.addEventListener('touchend', handleTouchEnd, { passive: false });
+
+        return card;
+      }
+
+      function escapeHtml(str) {
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      }
+
+      function handleDragStart(e) {
+        draggedTaskId = this.dataset.id;
+        this.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', draggedTaskId);
+      }
+
+      function handleDragEnd(e) {
+        this.classList.remove('dragging');
+        draggedTaskId = null;
+        document.querySelectorAll('.column-body').forEach(c => c.classList.remove('drag-over'));
+      }
+
+      function setupColumnDrop() {
+        document.querySelectorAll('.column-body').forEach(col => {
+          col.addEventListener('dragover', e => {
+            e.preventDefault();
+            col.classList.add('drag-over');
+          });
+          col.addEventListener('dragleave', e => {
+            col.classList.remove('drag-over');
+          });
+          col.addEventListener('drop', e => {
+            e.preventDefault();
+            col.classList.remove('drag-over');
+            const id = e.dataTransfer.getData('text/plain') || draggedTaskId;
+            if (id) moveTask(id, col.dataset.status);
+          });
+        });
+      }
+
+      function moveTask(id, newStatus) {
+        const task = tasks.find(t => t.id === id);
+        if (!task || task.status === newStatus) return;
+        task.status = newStatus;
+        if (newStatus === 'done') task.completedAt = new Date().toISOString();
+        else delete task.completedAt;
+        saveTasks();
+        render();
+      }
+
+      function handleTouchStart(e) {
+        if (e.target.closest('button')) return;
+        const touch = e.touches[0];
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+        touchMoved = false;
+        touchDragTaskId = this.dataset.id;
+      }
+
+      function handleTouchMove(e) {
+        const touch = e.touches[0];
+        if (!touchDragTaskId) return;
+        const dx = Math.abs(touch.clientX - touchStartX);
+        const dy = Math.abs(touch.clientY - touchStartY);
+        if (dx > 8 || dy > 8) {
+          touchMoved = true;
+          e.preventDefault();
+          if (!touchDragGhost) createTouchGhost(touchDragTaskId);
+          updateTouchGhost(touch.clientX, touch.clientY);
+          highlightDropColumn(touch.clientX, touch.clientY);
+        }
+      }
+
+      function handleTouchEnd(e) {
+        if (!touchDragTaskId) return;
+        if (!touchMoved) {
+          openEditModal(touchDragTaskId);
+          resetTouchDrag();
+          return;
+        }
+        const touch = e.changedTouches[0];
+        const col = getColumnAt(touch.clientX, touch.clientY);
+        if (col) moveTask(touchDragTaskId, col.dataset.status);
+        resetTouchDrag();
+      }
+
+      function createTouchGhost(taskId) {
+        const task = tasks.find(t => t.id === taskId);
+        if (!task) return;
+        touchDragGhost = createTaskCard(task).cloneNode(true);
+        touchDragGhost.classList.add('touch-ghost');
+        touchDragGhost.style.width = document.querySelector('.task-card').offsetWidth + 'px';
+        document.body.appendChild(touchDragGhost);
+      }
+
+      function updateTouchGhost(x, y) {
+        if (!touchDragGhost) return;
+        touchDragGhost.style.left = (x - touchDragGhost.offsetWidth / 2) + 'px';
+        touchDragGhost.style.top = (y - touchDragGhost.offsetHeight / 2) + 'px';
+      }
+
+      function highlightDropColumn(x, y) {
+        document.querySelectorAll('.column-body').forEach(c => c.classList.remove('drag-over'));
+        const col = getColumnAt(x, y);
+        if (col) col.classList.add('drag-over');
+      }
+
+      function getColumnAt(x, y) {
+        touchDragGhost && (touchDragGhost.style.display = 'none');
+        let elem = document.elementFromPoint(x, y);
+        touchDragGhost && (touchDragGhost.style.display = 'block');
+        while (elem && !elem.classList.contains('column-body')) {
+          elem = elem.parentElement;
+        }
+        return elem;
+      }
+
+      function resetTouchDrag() {
+        if (touchDragGhost) { touchDragGhost.remove(); touchDragGhost = null; }
+        touchDragTaskId = null;
+        touchMoved = false;
+        document.querySelectorAll('.column-body').forEach(c => c.classList.remove('drag-over'));
+      }
+
+      window.openAddModal = function () {
+        currentEditId = null;
+        document.getElementById('modal-title').textContent = 'Nova Tarefa';
+        document.getElementById('task-form').reset();
+        document.getElementById('task-id').value = '';
+        document.getElementById('btn-delete').style.display = 'none';
+        document.getElementById('task-deadline').value = formatDateISO(new Date());
+        document.getElementById('task-modal').classList.add('active');
+        document.getElementById('task-title').focus();
+      };
+
+      window.openEditModal = function (id) {
+        const task = tasks.find(t => t.id === id);
+        if (!task) return;
+        currentEditId = id;
+        document.getElementById('modal-title').textContent = 'Editar Tarefa';
+        document.getElementById('task-id').value = task.id;
+        document.getElementById('task-title').value = task.title;
+        document.getElementById('task-desc').value = task.description || '';
+        document.getElementById('task-member').value = task.member;
+        document.getElementById('task-priority').value = task.priority;
+        document.getElementById('task-deadline').value = task.deadline || '';
+        document.getElementById('btn-delete').style.display = 'inline-flex';
+        document.getElementById('task-modal').classList.add('active');
+      };
+
+      window.closeModal = function () {
+        document.getElementById('task-modal').classList.remove('active');
+        currentEditId = null;
+      };
+
+      window.closeModalOnBackdrop = function (e) {
+        if (e.target === document.getElementById('task-modal')) closeModal();
+      };
+
+      window.handleFormSubmit = function (e) {
+        e.preventDefault();
+        const title = document.getElementById('task-title').value.trim();
+        const description = document.getElementById('task-desc').value.trim();
+        const member = document.getElementById('task-member').value;
+        const priority = document.getElementById('task-priority').value;
+        const deadline = document.getElementById('task-deadline').value;
+
+        if (!title) return;
+
+        if (currentEditId) {
+          const task = tasks.find(t => t.id === currentEditId);
+          if (task) {
+            task.title = title;
+            task.description = description;
+            task.member = member;
+            task.priority = priority;
+            task.deadline = deadline;
+          }
+        } else {
+          tasks.push({
+            id: generateId(),
+            title,
+            description,
+            member,
+            priority,
+            deadline,
+            status: 'todo',
+            createdAt: new Date().toISOString()
+          });
+        }
+        saveTasks();
+        render();
+        closeModal();
+      };
+
+      window.confirmDelete = function () {
+        if (!currentEditId) return;
+        if (confirm('Tem certeza que deseja excluir esta tarefa?')) {
+          tasks = tasks.filter(t => t.id !== currentEditId);
+          saveTasks();
+          render();
+          closeModal();
+        }
+      };
+
+      document.getElementById('filter-member').addEventListener('change', render);
+      document.getElementById('filter-priority').addEventListener('change', render);
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+      loadTasks();
+      setupColumnDrop();
+      render();
+    })();
+  </script>
+</body>
+</html>
