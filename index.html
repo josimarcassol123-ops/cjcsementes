@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>J CASSOL SEMENTES - Organização de Tarefas</title>
   <style>
     :root {
@@ -613,6 +616,10 @@
           <span class="stat-value" id="stat-conn">—</span>
           <span class="stat-label">Banco</span>
         </div>
+        <div class="stat">
+          <span class="stat-value" id="stat-version">v4</span>
+          <span class="stat-label">Versão</span>
+        </div>
       </div>
     </div>
   </header>
@@ -729,7 +736,7 @@
       'use strict';
       const STORAGE_KEY = 'jcassol_kanban_tasks_v1';
       const API_KEY = 'jcassol_api_url_v1';
-      const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbzoORU--qZzQ-jf2bjOfKI5OnTy-S5kD87Yc4pJPjgQwLyAyt_sMlzONCUUiPvno9oi/exec';
+      const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbykjUaBtmXnSdStdlW6cQWfLQp7sPJW9O81zk94b7FG5Y9sNm1N-qVEWL6ovqmSWTFa/exec';
       const COLUMNS = ['afazer', 'fazendo', 'concluido'];
       const MEMBERS = { JO: 'JOSIMAR (JO)', CI: 'CIDIMAR (CI)', 'MÁ': 'MÁRCIA (MÁ)' };
       const PRIORITIES = { 'Alta': 'priority-alta', 'Média': 'priority-media', 'Baixa': 'priority-baixa' };
@@ -1062,7 +1069,7 @@
         document.getElementById('task-title').value = task.title;
         document.getElementById('task-desc').value = task.description || '';
         document.getElementById('task-member').value = task.member;
-        document.getElementById('task-deadline').value = task.deadline;
+        document.getElementById('task-deadline').value = String(task.deadline || '').substring(0, 10);
         document.getElementById('task-priority').value = task.priority;
         document.getElementById('task-status').value = task.status;
         openModal(true);
